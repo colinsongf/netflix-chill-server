@@ -7,4 +7,4 @@ psycopg2==2.6.1
 selenium==2.48.0
 django==1.8.5
 cssselect==0.9.1
-lxml==3.4.4d
+lxml==3.4.4
