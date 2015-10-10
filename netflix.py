@@ -63,7 +63,7 @@ def get_viewing_activity(user_id):
 def index():
   return 'Netflix and Chill API'
 
-@app.route('/sign-in', methods=['post'])
+@app.route('/sign-in', methods=['POST'])
 def sign_in():
   INVALID_NETFLIX_CREDENTIALS = -1
   nf_un = request.args.get('nfun') 
