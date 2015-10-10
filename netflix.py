@@ -29,7 +29,7 @@ class ChillRequest(db.Model):
   film = db.Column(db.Boolean())
   date = db.Column(db.Date())
   time_of_day = db.Column(db.String(20))
-  location = db.Column(db.Point)
+  latitude = db.Column(db.Float)
 
 def add_user(nf_un, nf_pw):
   new_user = User()
