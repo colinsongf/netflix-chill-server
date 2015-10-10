@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$FLASK_ENV" == "development" ]; then
+    echo 'dev mode'
+    python netflix.py
+else
+    echo 'prod mode'
+    gunicorn netflix:app --log-file=-
+fi
+

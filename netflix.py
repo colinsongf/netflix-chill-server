@@ -13,14 +13,10 @@ class User(db.Model):
   user_id = db.Column(db.Integer, primary_key=True)
   netflix_username = db.Column(db.String(80), unique=True)
   netflix_password = db.Column(db.String(80))
-  facebook_username = db.Column(db.String(80), unique=True)
-  facebook_password =  db.Column(db.String(80))
 
-  def __init__(self, fb_credentials, nf_credentials):
-    self.facebook_username = fb_credentials[0]
-    self.facebook_password = fb_credentials[1]
-    self.netflix_username = nf_credentials[0]
-    self.netflix_password = nf_credentials[1]
+  def __init__(self, nf_un, nf_pw):
+    self.netflix_username = nf_un
+    self.netflix_password = nf_pw
 
   def __repr__(self):
       return '<User %r>' % self.username
@@ -31,9 +27,9 @@ def index():
 
 @app.route('/sign-in', methods=['post'])
 def sign_in():
-  fb_credentials = (request.args.get('fbun'), request.args.get('fbpw'))
-  nf_credentials = (request.args.get('nfun'), request.args.get('nfpw'))
-  if user_exists(nf_credentials[0], fb_credentials[0]):
+  nf_un = request.args.get('nfun') 
+  nf_pw = request.args.get('nfpw'))
+  if user_exists(nf_un, nf_pw):
     return get_user_id(fb_credentials[0], nf_credentials[0])
   else:
     # create user
