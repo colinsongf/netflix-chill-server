@@ -7,7 +7,7 @@ from splinter import Browser
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = urlparse.urlparse(os.environ["DATABASE_URL"])
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
 
 # BEGIN BACKEND DATABASE IMPLEMENTATION
 
