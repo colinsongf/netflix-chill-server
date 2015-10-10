@@ -19,7 +19,7 @@ class User(db.Model):
     self.netflix_password = nf_pw
 
   def __repr__(self):
-      return '<User %r>' % self.username
+      return '<User %r>' % self.user_id
 
 @app.route('/')
 def index():
@@ -39,7 +39,7 @@ def user_exists(nf_un, fb_un):
   return (User.query().filter_by(netflix_username=nf_un, facebook_username=fb_un).count() != 0)
 
 def get_user_id(nf_un, fb_un):
-  result User.query().filter_by(netflix_username=nf_un, facebook_username=fb_un).add_column('user_id')
+  result = User.query().filter_by(netflix_username=nf_un, facebook_username=fb_un).add_column('user_id')
   print result
 
 def add_user():
