@@ -1,4 +1,5 @@
 import os
+import json
 
 from flask import Flask, request
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -15,9 +16,15 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
   __tablename__ = 'users'
-  user_id = db.Column(db.Integer, primary_key=True)
+  id = db.Column(db.Integer, primary_key=True)
   netflix_username = db.Column(db.String(80), unique=True)
   netflix_password = db.Column(db.String(80))
+  chill_requests = db.relationship("chill_request", backref="user")
+
+class ChillRequest(db.Model):
+  __tablename__ = 'chill_requests'
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = Column(db.Integer, db.ForeignKey('user.id'))
 
 def add_user(nf_un, nf_pw):
   new_user = User()
@@ -52,7 +59,7 @@ def verify_netflix_credentials(nf_un, nf_pw):
       return False
 
 def user_exists(nf_un, fb_un):
-  return (User.query.filter_by(netflix_username=nf_un, facebook_username=fb_un).count() != 0)
+  return (User.query.filter_by(netflix_username=nf_un).count() != 0)
 
 def get_viewing_activity(user_id):
   NETFLIX_VIEWING_ACTIVITY_URL = 'https://www.netflix.com/WiViewingActivity'
@@ -65,9 +72,12 @@ def index():
 
 @app.route('/sign-in', methods=['POST'])
 def sign_in():
+  print request.data
+  request_data = json.loads(request.data)
+  print request_data
+  nf_un = request_data['nf_un']
+  nf_pw = request_data['nf_pw']
   INVALID_NETFLIX_CREDENTIALS = -1
-  nf_un = request.args.get('nfun') 
-  nf_pw = request.args.get('nfpw')
   # Case 1: User exists
   if user_exists(nf_un, nf_pw):
     print get_user_by_username(nf_un)
