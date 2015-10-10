@@ -44,7 +44,7 @@ def get_user_by_id(nf_id):
   return User.query.filter_by(user_id=nf_id).all()
 
 def verify_netflix_credentials(nf_un, nf_pw):
-  BROWSER_DRIVER = 'phantomjs'
+  BROWSER_DRIVER = 'django'
   NETLFIX_LOGIN_URL = 'https://www.netflix.com/Login?locale=en-US'
   NETFLIX_SUCCESS_URL = 'http://www.netflix.com/browse'
   EMAIL_FIELD_ID = 'email'
