@@ -50,7 +50,7 @@ def verify_netflix_credentials(nf_un, nf_pw):
   EMAIL_FIELD_ID = 'email'
   PASSWORD_FIELD_ID = 'password'
   SIGN_IN_BUTTON_ID = 'login-form-contBtn'
-  with Browser(BROSWER_DRIVER) as browser: 
+  with Browser(BROWSER_DRIVER) as browser: 
     browser.visit(NETLFIX_LOGIN_URL)
     browser.fill(EMAIL_FIELD_ID, nf_un)
     browser.fill(PASSWORD_FIELD_ID, nf_pw)
