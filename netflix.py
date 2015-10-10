@@ -19,7 +19,6 @@ class User(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   netflix_username = db.Column(db.String(80), unique=True)
   netflix_password = db.Column(db.String(80))
-  chill_requests = db.relationship("chill_request", backref="user")
 
 class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
