@@ -44,13 +44,13 @@ def get_user_by_id(nf_id):
   return User.query.filter_by(user_id=nf_id).all()
 
 def verify_netflix_credentials(nf_un, nf_pw):
-  BROWSER_DRIVER = 'chrome'
+  BROWSER_DRIVER = 'phantomjs'
   NETLFIX_LOGIN_URL = 'https://www.netflix.com/Login?locale=en-US'
   NETFLIX_SUCCESS_URL = 'http://www.netflix.com/browse'
   EMAIL_FIELD_ID = 'email'
   PASSWORD_FIELD_ID = 'password'
   SIGN_IN_BUTTON_ID = 'login-form-contBtn'
-  with Browser() as browser: 
+  with Browser(BROSWER_DRIVER) as browser: 
     browser.visit(NETLFIX_LOGIN_URL)
     browser.fill(EMAIL_FIELD_ID, nf_un)
     browser.fill(PASSWORD_FIELD_ID, nf_pw)
