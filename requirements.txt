@@ -5,3 +5,4 @@ gunicorn==19.3.0
 splinter==0.7.3
 psycopg2==2.6.1
 selenium==2.48.0
+https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.0.0-macosx.zip
