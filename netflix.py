@@ -64,7 +64,8 @@ def verify_netflix_credentials(nf_un, nf_pw):
       return False
 
 def user_exists(nf_un, fb_un):
-  return (User.query.filter_by(netflix_username=nf_un).count() != 0)
+  print User.query.filter_by(netflix_username=nf_un)
+  return (User.query.filter_by(netflix_username=nf_un) != 0)
 
 def get_viewing_activity(user_id):
   NETFLIX_VIEWING_ACTIVITY_URL = 'https://www.netflix.com/WiViewingActivity'
@@ -80,6 +81,7 @@ def sign_in():
   print request.data
   request_data = json.loads(request.data)
   print request_data
+  # Error checking here
   nf_un = request_data['nf_un']
   nf_pw = request_data['nf_pw']
   INVALID_NETFLIX_CREDENTIALS = -1
