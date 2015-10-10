@@ -24,7 +24,12 @@ class User(db.Model):
 class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
   id = db.Column(db.Integer, primary_key=True)
-  user_id = Column(db.Integer, db.ForeignKey('user.id'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+  genre = db.Column(db.String(20))
+  film = db.Column(db.Boolean())
+  date = db.Column(db.Date())
+  time_of_day = db.Column(db.String(20))
+  location = db.Column(db.Point)
 
 def add_user(nf_un, nf_pw):
   new_user = User()
