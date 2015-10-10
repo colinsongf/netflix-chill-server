@@ -28,7 +28,7 @@ def index():
 @app.route('/sign-in', methods=['post'])
 def sign_in():
   nf_un = request.args.get('nfun') 
-  nf_pw = request.args.get('nfpw'))
+  nf_pw = request.args.get('nfpw')
   if user_exists(nf_un, nf_pw):
     return get_user_id(fb_credentials[0], nf_credentials[0])
   else:
