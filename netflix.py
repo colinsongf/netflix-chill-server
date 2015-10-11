@@ -87,7 +87,7 @@ def get_viewing_activity(user_id):
 def index():
   return 'Netflix and Chill API'
 
-app.route('/sign-in', methods=['POST'])
+@app.route('/sign-in', methods=['POST'])
 def sign_in():
   request_data = json.loads(request.data)
   # Error checking here
