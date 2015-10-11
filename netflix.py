@@ -31,6 +31,8 @@ def add_user(nf_un, nf_pw):
   db.session.flush()
   db.session.commit()
   print 'User added successfully.'
+  print 'User ID:', new_user.id
+  return new_user.id
 
 def get_user_by_username(nf_un):
   if len(User.query.filter_by(netflix_username=nf_un).all()) == 0:
@@ -40,6 +42,9 @@ def get_user_by_username(nf_un):
 
 def get_user_by_id(nf_id):
   return User.query.filter_by(user_id=nf_id).all()
+
+def user_exists(nf_un):
+  return (len(User.query.filter_by(netflix_username=nf_un).all()) != 0)
 
 class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
@@ -68,6 +73,18 @@ def add_chill_request(user_id, genre, program_type, date, time_of_day, latitude,
   db.session.flush()
   db.session.commit()
   print 'Chill Request added successfully.'
+  return new_request.id
+
+def get_chill_request_by_id(cr_id):
+  requests = ChillRequest.query.filter_by(id=cr_id).all()
+  if len(requests) == 0:
+    return None
+  else:
+    return requests[0].id
+
+
+def chill_request_exists(cr_id):
+  return (len(ChillRequest.query.filter_by(id=cr_id).all()) != 0)
 
 def verify_netflix_credentials(nf_un, nf_pw):
   """
@@ -94,9 +111,6 @@ def verify_netflix_credentials(nf_un, nf_pw):
     else:
       print 'Netflix login invalid.'
       return False
-
-def user_exists(nf_un):
-  return (len(User.query.filter_by(netflix_username=nf_un).all()) != 0)
 
 def get_viewing_activity(user_id):
   NETFLIX_VIEWING_ACTIVITY_URL = 'https://www.netflix.com/WiViewingActivity'
@@ -138,6 +152,7 @@ def create_chill_request:
   latitude = float(request_data['latitude'])
   longitude = float(request_data['longitude'])
   add_chill_request(user_id, genre, program_type, date, time, latitude, longitude)
+  return create_chill_id_response(get_chill_request_by_id())
 
 # Takes in a string denoting a day of the week, and returns a date object representing
 # the next occurence of that date
@@ -157,6 +172,9 @@ def get_weekday_int_from_string(s):
 
 def create_user_id_response(user_id):
   return jsonify(**{'user_id': user_id})
+
+def create_chill_id_response(chill_id):
+  return jsonify(**{'chill_request_id': chill_id})
 
 if __name__ == "__main__":
   app.run()
