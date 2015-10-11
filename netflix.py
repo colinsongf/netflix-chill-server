@@ -110,7 +110,7 @@ def sign_in():
     return create_user_id_response(INVALID_NETFLIX_CREDENTIALS)
 
 def create_user_id_response(user_id):
-  return flask.jsonify(**{'user_id': user_id})
+  return jsonify(**{'user_id': user_id})
 
 if __name__ == "__main__":
   app.run()
