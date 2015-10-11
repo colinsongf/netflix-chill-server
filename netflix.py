@@ -93,7 +93,7 @@ def sign_in():
   """
   REALLY BAD HACKY IMPLEMENTATION TO LET DYLAN TEST HIS API
   """
-  return {'num': 137}
+  return '137'
   """
   END BAD IMPLEMENTATION
   """
