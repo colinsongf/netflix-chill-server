@@ -9,8 +9,8 @@ from splinter import Browser
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hbrvgdoavvrkzy:97AbqwFr_7XFVq1paXIOi0Xl_Y@ec2-54-225-201-25.compute-1.amazonaws.com:5432/d92htefnn65sr'
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hbrvgdoavvrkzy:97AbqwFr_7XFVq1paXIOi0Xl_Y@ec2-54-225-201-25.compute-1.amazonaws.com:5432/d92htefnn65sr'
 
 # BEGIN BACKEND DATABASE IMPLEMENTATION
 
@@ -32,7 +32,6 @@ def add_user(nf_un, nf_pw):
   db.session.flush()
   db.session.commit()
   print 'User added successfully.'
-  print 'User ID:', new_user.id
   return new_user.id
 
 def get_user_by_username(nf_un):
@@ -72,7 +71,6 @@ def add_chill_request(user_id, genre, program_type, date, time_of_day, latitude,
   new_request = ChillRequest(user_id, genre, program_type, date, time_of_day, latitude, longitude)
   db.session.add(new_request)
   db.session.flush()
-  print 'New Request:', new_request
   db.session.commit()
   print 'Chill Request added successfully.'
   return new_request.id
@@ -84,6 +82,27 @@ def get_chill_request_by_id(cr_id):
   else:
     return requests[0].id
 
+def get_chill_requests_by_user_id(user_id):
+  return ChillRequest.query.filter_by(user_id=user_id).all()
+
+def get_chill_request_matches(chill_request):
+  q = session.query(ChillRequest)
+  q.filter_by(user_id != chill_request.user_id)
+  q.filter_by(date == chill_request.date)
+  q.filter_by(time_of_day == chill_request.time_of_day)
+  matches = q.all()
+
+def evaluate_compatibility(cr1, cr2):
+  pass
+
+def calculate_distance(cr1, cr2):
+  dlon = abs(cr2.longitude - cr1.longitude) 
+  dlat = abs(cr2.latitude - cr1.latitude)
+  a = (sin(dlat/2))**2 + cos(lat1) * cos(lat2) * (sin(dlon/2))**2 
+  c = 2 * atan2(sqrt(a), sqrt(1-a))
+  EARTH_RADIUS_MI = 3959
+  EARTH_RADIUS_KM= 6371
+  return EARTH_RADIUS_MI * c
 
 def chill_request_exists(cr_id):
   return (len(ChillRequest.query.filter_by(id=cr_id).all()) != 0)
@@ -117,6 +136,27 @@ def verify_netflix_credentials(nf_un, nf_pw):
 def get_viewing_activity(user_id):
   NETFLIX_VIEWING_ACTIVITY_URL = 'https://www.netflix.com/WiViewingActivity'
 
+# BEGIN API HELPER METHODS
+
+# Takes in a string denoting a day of the week, and returns a date object representing
+# the next occurence of that date
+def process_date_from_string(date_string):
+  today = datetime.date.today()
+  current_weekday = today.weekday()
+  target_weekday = get_weekday_int_from_string(date_string)
+  day_delta = target_weekday-current_weekday
+  if target_weekday < current_weekday:
+    day_delta += 7
+  delta = datetime.timedelta(days=target_weekday-current_weekday)
+  return today + delta
+
+# Returns a Python standard integer representing day of the week. Monday is 0. Sunday is 6.
+def get_weekday_int_from_string(s):
+  days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  if s not in days:
+    raise ValueError('Day of week does not match any predefined names.')
+  return days.index(s)
+
 # BEGIN API
 
 @app.route('/')
@@ -145,7 +185,6 @@ def sign_in():
 
 @app.route('/create-chill-request', methods=['POST'])
 def create_chill_request():
-  print request.data
   request_data = json.loads(request.data)
   user_id = request_data['uid']
   genre = request_data['genre']
@@ -157,30 +196,26 @@ def create_chill_request():
   response = add_chill_request(user_id, genre, program_type, date, time, latitude, longitude)
   return create_chill_id_response(response)
 
-# Takes in a string denoting a day of the week, and returns a date object representing
-# the next occurence of that date
-def process_date_from_string(date_string):
-  today = datetime.date.today()
-  current_weekday = today.weekday()
-  target_weekday = get_weekday_int_from_string(date_string)
-  day_delta = target_weekday-current_weekday
-  if target_weekday < current_weekday:
-    day_delta += 7
-  delta = datetime.timedelta(days=target_weekday-current_weekday)
-  return today + delta
+@app.route('/verify-user-exists', methods=['GET'])
+def verify_id_exists():
+  user_id = int(request.data)
+  return create_verify_user_response(user_exists(user_id))
 
-# Returns a Python standard integer representing day of the week. Monday is 0. Sunday is 6.
-def get_weekday_int_from_string(s):
-  days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-  if s not in days:
-    raise ValueError('Day of week does not match any predefined names.')
-  return days.index(s)
+@app.route('/get-chill-matches', methods=['GET'])
+def get_chill_matches():
+  pass
 
 def create_user_id_response(user_id):
   return jsonify(**{'user_id': user_id})
 
 def create_chill_id_response(chill_id):
   return jsonify(**{'chill_request_id': chill_id})
+
+def create_verify_user_response(user_exists):
+  return jsonify(**{'user_exists': user_exists})
+
+
+# BEGIN SETUP CODE
 
 if __name__ == "__main__":
   app.run()
