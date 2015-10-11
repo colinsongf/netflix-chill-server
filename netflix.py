@@ -43,7 +43,11 @@ def add_user(nf_un, nf_pw):
   print 'User added successfully.'
 
 def get_user_by_username(nf_un):
-  return User.query.filter_by(netflix_username=nf_un).all()[0]
+  print 'Returned by gubu:', User.query.filter_by(netflix_username=nf_un).all()
+  if len(User.query.filter_by(netflix_username=nf_un).all()):
+    return None
+  else:
+    return User.query.filter_by(netflix_username=nf_un).all()
 
 def get_user_by_id(nf_id):
   return User.query.filter_by(user_id=nf_id).all()
@@ -75,8 +79,8 @@ def verify_netflix_credentials(nf_un, nf_pw):
       return False
 
 def user_exists(nf_un, fb_un):
-  print User.query.filter_by(netflix_username=nf_un)
-  return (User.query.filter_by(netflix_username=nf_un) != 0)
+  print len(User.query.filter_by(netflix_username=nf_un).all())
+  return (len(User.query.filter_by(netflix_username=nf_un).all()) != 0)
 
 def get_viewing_activity(user_id):
   NETFLIX_VIEWING_ACTIVITY_URL = 'https://www.netflix.com/WiViewingActivity'
