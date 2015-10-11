@@ -87,19 +87,9 @@ def get_viewing_activity(user_id):
 def index():
   return 'Netflix and Chill API'
 
-#app.route('/sign-in, methods=['POST'])
-@app.route('/sign-in', methods=['GET'])
+app.route('/sign-in', methods=['POST'])
 def sign_in():
-  """
-  REALLY BAD HACKY IMPLEMENTATION TO LET DYLAN TEST HIS API
-  """
-  return '137'
-  """
-  END BAD IMPLEMENTATION
-  """
-  print request.data
   request_data = json.loads(request.data)
-  print request_data
   # Error checking here
   nf_un = request_data['nf_un']
   nf_pw = request_data['nf_pw']
@@ -116,8 +106,6 @@ def sign_in():
     return INVALID_NETFLIX_CREDENTIALS
 
 if __name__ == "__main__":
-  db.drop_all()
-  db.create_all()
   app.run()
 
   #app.run()
