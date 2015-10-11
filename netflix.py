@@ -143,8 +143,9 @@ def sign_in():
 
 @app.route('/create-chill-request', methods=['POST'])
 def create_chill_request():
+  print request.data
   request_data = json.loads(request.data)
-  user_id = request_date['uid']
+  user_id = request_data['uid']
   genre = request_data['genre']
   program_type = request_data['type']
   date = process_date_from_string(request_data['day'])
