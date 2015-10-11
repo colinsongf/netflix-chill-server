@@ -43,7 +43,7 @@ def add_user(nf_un, nf_pw):
   print 'User added successfully.'
 
 def get_user_by_username(nf_un):
-  return User.query.filter_by(netflix_username=nf_un).all()
+  return User.query.filter_by(netflix_username=nf_un).all()[0]
 
 def get_user_by_id(nf_id):
   return User.query.filter_by(user_id=nf_id).all()
