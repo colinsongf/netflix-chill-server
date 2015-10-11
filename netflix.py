@@ -101,7 +101,7 @@ def sign_in():
   if verify_netflix_credentials(nf_un, nf_pw):
     print 'Adding user.'
     add_user(nf_un, nf_pw)
-    print 'Created user with id' get_user_by_username(nf_un).id
+    print 'Created user with id:', get_user_by_username(nf_un).id
     return get_user_by_username(nf_un).id
   # Case 3: User doesn't exist, and has invalid credentials
   else:
