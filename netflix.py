@@ -20,6 +20,10 @@ class User(db.Model):
   netflix_username = db.Column(db.String(80), unique=True)
   netflix_password = db.Column(db.String(80))
 
+  def __init__(self, username, password):
+    self.netflix_username = username
+    self.netflix_password = password
+
 class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
   id = db.Column(db.Integer, primary_key=True)
@@ -31,10 +35,9 @@ class ChillRequest(db.Model):
   latitude = db.Column(db.Float)
 
 def add_user(nf_un, nf_pw):
-  new_user = User()
-  new_user.netflix_username = nf_un
-  new_user.netflix_password = nf_pw
+  new_user = User(nf_un, nf_pw)
   db.session.add(new_user)
+  db.session.flush()
   db.session.commit()
   return 'User added successfully.'
 
