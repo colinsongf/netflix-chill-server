@@ -9,8 +9,8 @@ from splinter import Browser
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hbrvgdoavvrkzy:97AbqwFr_7XFVq1paXIOi0Xl_Y@ec2-54-225-201-25.compute-1.amazonaws.com:5432/d92htefnn65sr'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hbrvgdoavvrkzy:97AbqwFr_7XFVq1paXIOi0Xl_Y@ec2-54-225-201-25.compute-1.amazonaws.com:5432/d92htefnn65sr'
 
 # BEGIN BACKEND DATABASE IMPLEMENTATION
 
@@ -181,10 +181,12 @@ def sign_in():
   # Error checking here
   nf_un = request_data['nf_un']
   nf_pw = request_data['nf_pw']
-  INVALID_NETFLIX_CREDENTIALS = -1
+  ERROR = -1
   # Case 1: User exists
   if user_exists(nf_un):
     return create_user_id_response(get_user_by_username(nf_un).id)
+    if not nf_pw == get_user_by_username(nf_un).netflix_password:
+      return create_user_id_response(ERROR)
   # Case 2: User doesn't exist, but has valid credentials
   if verify_netflix_credentials(nf_un, nf_pw):
     print 'Adding user.'
@@ -193,7 +195,7 @@ def sign_in():
     return create_user_id_response(get_user_by_username(nf_un).id)
   # Case 3: User doesn't exist, and has invalid credentials
   else:
-    return create_user_id_response(INVALID_NETFLIX_CREDENTIALS)
+    return create_user_id_response(ERROR)
 
 @app.route('/create-chill-request', methods=['POST'])
 def create_chill_request():
@@ -224,7 +226,7 @@ def verify_id_exists():
 def get_chill_matches():
   chill_request_fields = ['type', 'time', 'day', 'genre']
   result = {}
-  str_user_id = json.loads(request.data)['uid'])
+  str_user_id = json.loads(request.data)['uid']
   try:
     int_user_id = int(str_user_id)
   except ValueError:
@@ -238,9 +240,8 @@ def get_chill_matches():
     request_entry['time'] = request.time_of_day
     request_entry['genre'] = request.genre
     request_entry['day'] = index_to_dow(request.date.weekday())
-    request_entry['priority'] = #assign priority here
-    request_entry['matches'] = 
-
+    request_entry['priority'] = 3 #assign priority here
+    request_entry['matches'] = [1,2,3]
 
 def create_user_id_response(user_id):
   return jsonify(**{'user_id': user_id})
