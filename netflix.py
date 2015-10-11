@@ -36,6 +36,7 @@ def add_user(nf_un, nf_pw):
   new_user.netflix_password = nf_pw
   db.session.add(new_user)
   db.session.commit()
+  return 'User added successfully.'
 
 def get_user_by_username(nf_un):
   return User.query.filter_by(netflix_username=nf_un).all()
@@ -44,6 +45,13 @@ def get_user_by_id(nf_id):
   return User.query.filter_by(user_id=nf_id).all()
 
 def verify_netflix_credentials(nf_un, nf_pw):
+  """
+  Super hacky patch.
+  """
+  return True
+  """
+  FIX THIS
+  """
   BROWSER_DRIVER = 'django'
   NETLFIX_LOGIN_URL = 'https://www.netflix.com/Login?locale=en-US'
   NETFLIX_SUCCESS_URL = 'http://www.netflix.com/browse'
