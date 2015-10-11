@@ -40,7 +40,7 @@ def add_user(nf_un, nf_pw):
   db.session.add(new_user)
   db.session.flush()
   db.session.commit()
-  return 'User added successfully.'
+  print 'User added successfully.'
 
 def get_user_by_username(nf_un):
   return User.query.filter_by(netflix_username=nf_un).all()
@@ -96,11 +96,13 @@ def sign_in():
   INVALID_NETFLIX_CREDENTIALS = -1
   # Case 1: User exists
   if user_exists(nf_un, nf_pw):
-    print get_user_by_username(nf_un)
+    return get_user_by_username(nf_un).id
   # Case 2: User doesn't exist, but has valid credentials
   if verify_netflix_credentials(nf_un, nf_pw):
+    print 'Adding user.'
     add_user(nf_un, nf_pw)
-    print get_user_by_username(nf_un)
+    print 'Created user with id' get_user_by_username(nf_un).id
+    return get_user_by_username(nf_un).id
   # Case 3: User doesn't exist, and has invalid credentials
   else:
     return INVALID_NETFLIX_CREDENTIALS
