@@ -1,7 +1,7 @@
 import os
 import json
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from splinter import Browser
@@ -98,16 +98,19 @@ def sign_in():
   INVALID_NETFLIX_CREDENTIALS = -1
   # Case 1: User exists
   if user_exists(nf_un):
-    return get_user_by_username(nf_un).id
+    return create_user_id_response(get_user_by_username(nf_un).id)
   # Case 2: User doesn't exist, but has valid credentials
   if verify_netflix_credentials(nf_un, nf_pw):
     print 'Adding user.'
     add_user(nf_un, nf_pw)
     print 'Created user with id:', get_user_by_username(nf_un).id
-    return get_user_by_username(nf_un).id
+    return create_user_id_response(get_user_by_username(nf_un).id)
   # Case 3: User doesn't exist, and has invalid credentials
   else:
-    return INVALID_NETFLIX_CREDENTIALS
+    return create_user_id_response(INVALID_NETFLIX_CREDENTIALS)
+
+def create_user_id_response(user_id):
+  return flask.jsonify(**{'user_id': user_id})
 
 if __name__ == "__main__":
   app.run()
