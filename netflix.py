@@ -46,6 +46,9 @@ def get_user_by_id(nf_id):
 def user_exists(nf_un):
   return (len(User.query.filter_by(netflix_username=nf_un).all()) != 0)
 
+def user_id_exists(id):
+  return (len(User.query.filter_by(id=id).all()) != 0)
+
 class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
   id = db.Column(db.Integer(), nullable=False, primary_key=True, unique=True, autoincrement=True)
@@ -204,8 +207,9 @@ def create_chill_request():
 
 @app.route('/verify-user-exists', methods=['POST'])
 def verify_id_exists():
-  user_id = json.loads(request.data)['uid']
-  return create_verify_user_response(user_exists(user_id))
+  user_id = int(json.loads(request.data)['uid'])
+  print 'User exists:', user_id_exists(user_id)
+  return create_verify_user_response(user_id_exists(user_id))
 
 @app.route('/get-chill-matches', methods=['GET'])
 def get_chill_matches():
