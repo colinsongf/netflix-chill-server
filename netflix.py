@@ -43,11 +43,10 @@ def add_user(nf_un, nf_pw):
   print 'User added successfully.'
 
 def get_user_by_username(nf_un):
-  print 'Returned by gubu:', User.query.filter_by(netflix_username=nf_un).all()
-  if len(User.query.filter_by(netflix_username=nf_un).all()):
+  if len(User.query.filter_by(netflix_username=nf_un).all()) == 0:
     return None
   else:
-    return User.query.filter_by(netflix_username=nf_un).all()
+    return User.query.filter_by(netflix_username=nf_un).all()[0]
 
 def get_user_by_id(nf_id):
   return User.query.filter_by(user_id=nf_id).all()
@@ -78,8 +77,7 @@ def verify_netflix_credentials(nf_un, nf_pw):
       print 'Netflix login invalid.'
       return False
 
-def user_exists(nf_un, fb_un):
-  print len(User.query.filter_by(netflix_username=nf_un).all())
+def user_exists(nf_un):
   return (len(User.query.filter_by(netflix_username=nf_un).all()) != 0)
 
 def get_viewing_activity(user_id):
@@ -99,7 +97,7 @@ def sign_in():
   nf_pw = request_data['nf_pw']
   INVALID_NETFLIX_CREDENTIALS = -1
   # Case 1: User exists
-  if user_exists(nf_un, nf_pw):
+  if user_exists(nf_un):
     return get_user_by_username(nf_un).id
   # Case 2: User doesn't exist, but has valid credentials
   if verify_netflix_credentials(nf_un, nf_pw):
