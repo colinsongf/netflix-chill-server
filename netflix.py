@@ -184,9 +184,9 @@ def sign_in():
   ERROR = -1
   # Case 1: User exists
   if user_exists(nf_un):
-    return create_user_id_response(get_user_by_username(nf_un).id)
     if not nf_pw == get_user_by_username(nf_un).netflix_password:
       return create_user_id_response(ERROR)
+    return create_user_id_response(get_user_by_username(nf_un).id)
   # Case 2: User doesn't exist, but has valid credentials
   if verify_netflix_credentials(nf_un, nf_pw):
     print 'Adding user.'
