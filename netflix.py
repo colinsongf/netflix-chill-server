@@ -95,6 +95,15 @@ def get_chill_request_matches(chill_request):
   q.filter_by(time_of_day == chill_request.time_of_day)
   matches = q.all()
 
+def get_chill_request_dict(request):
+  result = {}
+  result['user_id'] = str(request.user_id)
+  result['type'] = request.program_type
+  result['time'] = request.time_of_day
+  result['genre'] = request.genre
+  result['day'] = index_to_dow(request.date.weekday())
+  return result
+
 def evaluate_compatibility(cr1, cr2):
   pass
 
@@ -211,9 +220,27 @@ def verify_id_exists():
   print 'User exists:', user_id_exists(user_id)
   return create_verify_user_response(user_id_exists(user_id))
 
-@app.route('/get-chill-matches', methods=['GET'])
+@app.route('/get-chill-matches', methods=['POST'])
 def get_chill_matches():
-  pass
+  chill_request_fields = ['type', 'time', 'day', 'genre']
+  result = {}
+  str_user_id = json.loads(request.data)['uid'])
+  try:
+    int_user_id = int(str_user_id)
+  except ValueError:
+    return 'Invalid user ID.'
+  if not user_id_exists(user_id):
+    return 'User ID not found.'
+  for request in get_chill_requests_by_user_id(int_user_id):
+    result[str(request.id)] = {}
+    request_entry = result[str(request.id)]
+    request_entry['type'] = request.program_type
+    request_entry['time'] = request.time_of_day
+    request_entry['genre'] = request.genre
+    request_entry['day'] = index_to_dow(request.date.weekday())
+    request_entry['priority'] = #assign priority here
+    request_entry['matches'] = 
+
 
 def create_user_id_response(user_id):
   return jsonify(**{'user_id': user_id})
@@ -224,6 +251,18 @@ def create_chill_id_response(chill_id):
 def create_verify_user_response(user_exists):
   return jsonify(**{'user_exists': user_exists})
 
+def create_chill_matches_response():
+  pass
+
+# MISCELLANEOUS
+
+def index_to_dow(index):
+  days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  return days[index]
+
+def dow_to_index(dow):
+  days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  return days.index(dow)
 
 # BEGIN SETUP CODE
 
