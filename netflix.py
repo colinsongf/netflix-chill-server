@@ -202,7 +202,7 @@ def create_chill_request():
   response = add_chill_request(user_id, genre, program_type, date, time, latitude, longitude)
   return create_chill_id_response(response)
 
-@app.route('/verify-user-exists', methods=['GET'])
+@app.route('/verify-user-exists', methods=['POST'])
 def verify_id_exists():
   user_id = json.loads(request.data)['uid']
   return create_verify_user_response(user_exists(user_id))
