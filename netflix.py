@@ -10,6 +10,7 @@ from splinter import Browser
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hbrvgdoavvrkzy:97AbqwFr_7XFVq1paXIOi0Xl_Y@ec2-54-225-201-25.compute-1.amazonaws.com:5432/d92htefnn65sr'
 
 # BEGIN BACKEND DATABASE IMPLEMENTATION
 
@@ -50,7 +51,7 @@ class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
   id = db.Column(db.Integer(), nullable=False, primary_key=True, unique=True, autoincrement=True)
   #id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+  user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
   genre = db.Column(db.String(20))
   program_type = db.Column(db.Boolean())
   date = db.Column(db.Date())
@@ -71,6 +72,7 @@ def add_chill_request(user_id, genre, program_type, date, time_of_day, latitude,
   new_request = ChillRequest(user_id, genre, program_type, date, time_of_day, latitude, longitude)
   db.session.add(new_request)
   db.session.flush()
+  print 'New Request:', new_request
   db.session.commit()
   print 'Chill Request added successfully.'
   return new_request.id
@@ -152,15 +154,18 @@ def create_chill_request():
   time = request_data['time']
   latitude = float(request_data['latitude'])
   longitude = float(request_data['longitude'])
-  add_chill_request(user_id, genre, program_type, date, time, latitude, longitude)
-  return create_chill_id_response(get_chill_request_by_id())
+  response = add_chill_request(user_id, genre, program_type, date, time, latitude, longitude)
+  return create_chill_id_response(response)
 
 # Takes in a string denoting a day of the week, and returns a date object representing
 # the next occurence of that date
 def process_date_from_string(date_string):
-  today = date.today()
+  today = datetime.date.today()
   current_weekday = today.weekday()
   target_weekday = get_weekday_int_from_string(date_string)
+  day_delta = target_weekday-current_weekday
+  if target_weekday < current_weekday:
+    day_delta += 7
   delta = datetime.timedelta(days=target_weekday-current_weekday)
   return today + delta
 
