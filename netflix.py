@@ -275,6 +275,7 @@ def get_chill_matches():
     result[str(chill_request.id)] = get_chill_request_dict(chill_request)
     result[str(chill_request.id)]['priority'] = 1 # TODO: Assign priority based on chronological ordering.
     result[str(chill_request.id)]['matches'] = get_chill_request_matches(chill_request)
+  print create_chill_matches_response(result)
   return create_chill_matches_response(result)
 
 def create_user_id_response(user_id):
