@@ -1,16 +1,18 @@
 import os
 import json
 import datetime
+from math import sin, cos, tan, asin, acos, atan, sqrt, atan2
 
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
+import flask
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from splinter import Browser
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hbrvgdoavvrkzy:97AbqwFr_7XFVq1paXIOi0Xl_Y@ec2-54-225-201-25.compute-1.amazonaws.com:5432/d92htefnn65sr'
+#app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://hbrvgdoavvrkzy:97AbqwFr_7XFVq1paXIOi0Xl_Y@ec2-54-225-201-25.compute-1.amazonaws.com:5432/d92htefnn65sr'
 
 # BEGIN BACKEND DATABASE IMPLEMENTATION
 
@@ -40,8 +42,11 @@ def get_user_by_username(nf_un):
   else:
     return User.query.filter_by(netflix_username=nf_un).all()[0]
 
-def get_user_by_id(nf_id):
-  return User.query.filter_by(user_id=nf_id).all()
+def get_user_by_id(id):
+  if len(User.query.filter_by(id=id).all()) == 0:
+    return None
+  else:
+    return User.query.filter_by(id=id).all()[0]
 
 def user_exists(nf_un):
   return (len(User.query.filter_by(netflix_username=nf_un).all()) != 0)
@@ -89,11 +94,36 @@ def get_chill_requests_by_user_id(user_id):
   return ChillRequest.query.filter_by(user_id=user_id).all()
 
 def get_chill_request_matches(chill_request):
-  q = session.query(ChillRequest)
-  q.filter_by(user_id != chill_request.user_id)
-  q.filter_by(date == chill_request.date)
-  q.filter_by(time_of_day == chill_request.time_of_day)
-  matches = q.all()
+  MATCHES_LIMIT = 3
+  matches = ChillRequest.query.filter(
+    ChillRequest.user_id != chill_request.user_id,
+    ChillRequest.date == chill_request.date,
+    ChillRequest.time_of_day == chill_request.time_of_day).all()
+  if len(matches) < MATCHES_LIMIT:
+    top_matches = matches
+  else:
+    top_matches = matches[0:MATCHES_LIMIT]
+    for match in matches:
+      score = evaluate_compatibility(chill_request, match)
+      for top_match in top_matches:
+        if score > evaluate_compatibility(chill_request, top_match):
+          top_matches.remove(top_match)
+          top_matches.append(match)
+  result = []
+  index = 0
+  for match in top_matches:
+    result.append({})
+    match_entry = result[index]
+    user = get_user_by_id(match.user_id)
+    match_entry['email'] = user.netflix_username
+    match_entry['priority'] = evaluate_compatibility(match, chill_request)
+    index += 1
+  final_result = {}
+  index = 0
+  for match in top_matches:
+    final_result[match.user_id] = result[index]
+    index += 1
+  return final_result
 
 def get_chill_request_dict(request):
   result = {}
@@ -105,12 +135,20 @@ def get_chill_request_dict(request):
   return result
 
 def evaluate_compatibility(cr1, cr2):
-  pass
+  score = 1
+  if cr1.genre != cr2.genre:
+    score *= .5
+  if cr1.program_type != cr2.program_type:
+    score *= .5
+  DISTANCE_MAGIC_NUMBER = 1.07
+  distance_score = DISTANCE_MAGIC_NUMBER ** -(calculate_distance(cr1, cr2))
+  score *= distance_score
+  return score
 
 def calculate_distance(cr1, cr2):
   dlon = abs(cr2.longitude - cr1.longitude) 
   dlat = abs(cr2.latitude - cr1.latitude)
-  a = (sin(dlat/2))**2 + cos(lat1) * cos(lat2) * (sin(dlon/2))**2 
+  a = (sin(dlat/2))**2 + cos(cr1.latitude) * cos(cr2.latitude) * (sin(dlon/2))**2 
   c = 2 * atan2(sqrt(a), sqrt(1-a))
   EARTH_RADIUS_MI = 3959
   EARTH_RADIUS_KM= 6371
@@ -177,7 +215,7 @@ def index():
 
 @app.route('/sign-in', methods=['POST'])
 def sign_in():
-  request_data = json.loads(request.data)
+  request_data = json.loads(flask.request.data)
   # Error checking here
   nf_un = request_data['nf_un']
   nf_pw = request_data['nf_pw']
@@ -200,7 +238,7 @@ def sign_in():
 @app.route('/create-chill-request', methods=['POST'])
 def create_chill_request():
   ERROR = -1
-  request_data = json.loads(request.data)
+  request_data = json.loads(flask.request.data)
   user_id = request_data['uid']
   genre = request_data['genre']
   program_type = request_data['type']
@@ -218,30 +256,26 @@ def create_chill_request():
 
 @app.route('/verify-user-exists', methods=['POST'])
 def verify_id_exists():
-  user_id = int(json.loads(request.data)['uid'])
+  user_id = int(json.loads(flask.request.data)['uid'])
   print 'User exists:', user_id_exists(user_id)
   return create_verify_user_response(user_id_exists(user_id))
 
 @app.route('/get-chill-matches', methods=['POST'])
 def get_chill_matches():
-  chill_request_fields = ['type', 'time', 'day', 'genre']
   result = {}
-  str_user_id = json.loads(request.data)['uid']
+  str_user_id = json.loads(flask.request.data)['uid']
   try:
     int_user_id = int(str_user_id)
   except ValueError:
     return 'Invalid user ID.'
-  if not user_id_exists(user_id):
+  if not user_id_exists(int_user_id):
     return 'User ID not found.'
-  for request in get_chill_requests_by_user_id(int_user_id):
-    result[str(request.id)] = {}
-    request_entry = result[str(request.id)]
-    request_entry['type'] = request.program_type
-    request_entry['time'] = request.time_of_day
-    request_entry['genre'] = request.genre
-    request_entry['day'] = index_to_dow(request.date.weekday())
-    request_entry['priority'] = 3 #assign priority here
-    request_entry['matches'] = [1,2,3]
+  for chill_request in get_chill_requests_by_user_id(int_user_id):
+    result[str(chill_request.id)] = {}
+    result[str(chill_request.id)] = get_chill_request_dict(chill_request)
+    result[str(chill_request.id)]['priority'] = 1 # TODO: Assign priority based on chronological ordering.
+    result[str(chill_request.id)]['matches'] = get_chill_request_matches(chill_request)
+  return create_chill_matches_response(result)
 
 def create_user_id_response(user_id):
   return jsonify(**{'user_id': user_id})
@@ -252,8 +286,8 @@ def create_chill_id_response(chill_id):
 def create_verify_user_response(user_exists):
   return jsonify(**{'user_exists': user_exists})
 
-def create_chill_matches_response():
-  pass
+def create_chill_matches_response(chill_matches):
+  return jsonify(**chill_matches)
 
 # MISCELLANEOUS
 
