@@ -26,7 +26,8 @@ class User(db.Model):
 
 class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
-  id = db.Column(db.Integer, primary_key=True)
+  id = db.Column(Integer(15, unsigned=True), nullable=False, primary_key=True, unique=True, autoincrement=True)
+  #id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
   genre = db.Column(db.String(20))
   film = db.Column(db.Boolean())
@@ -108,7 +109,7 @@ def sign_in():
 
 if __name__ == "__main__":
   db.drop_all()
-  db.create_all()
+  db.create_all()g
   app.run()
 
   #app.run()
