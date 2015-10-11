@@ -107,6 +107,8 @@ def sign_in():
     return INVALID_NETFLIX_CREDENTIALS
 
 if __name__ == "__main__":
+  db.drop_all()
+  db.create_all()
   app.run()
 
   #app.run()
