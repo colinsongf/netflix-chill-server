@@ -142,7 +142,7 @@ def sign_in():
     return create_user_id_response(INVALID_NETFLIX_CREDENTIALS)
 
 @app.route('/create-chill-request', methods=['POST'])
-def create_chill_request:
+def create_chill_request():
   request_data = json.loads(request.data)
   user_id = request_date['uid']
   genre = request_data['genre']
