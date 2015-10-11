@@ -185,20 +185,26 @@ def sign_in():
 
 @app.route('/create-chill-request', methods=['POST'])
 def create_chill_request():
+  ERROR = -1
   request_data = json.loads(request.data)
   user_id = request_data['uid']
   genre = request_data['genre']
   program_type = request_data['type']
   date = process_date_from_string(request_data['day'])
   time = request_data['time']
-  latitude = float(request_data['latitude'])
-  longitude = float(request_data['longitude'])
+  try:
+    latitude = float(request_data['latitude'])
+    longitude = float(request_data['longitude'])
+  except ValueError:
+    'Coordinates are invalid. Please enter in floating point form: 1.234'
+    return create_chill_id_response(ERROR)
+
   response = add_chill_request(user_id, genre, program_type, date, time, latitude, longitude)
   return create_chill_id_response(response)
 
-@app.route('/verify-user-exists', methods=['POST'])
+@app.route('/verify-user-exists', methods=['GET'])
 def verify_id_exists():
-  user_id = int(request.data)
+  user_id = json.loads(request.data)['uid']
   return create_verify_user_response(user_exists(user_id))
 
 @app.route('/get-chill-matches', methods=['GET'])
