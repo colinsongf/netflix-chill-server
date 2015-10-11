@@ -16,7 +16,7 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
   __tablename__ = 'users'
-  #id = db.Column(db.Integer(), nullable=False, primary_key=True, unique=True, autoincrement=True)
+  id = db.Column(db.Integer(), nullable=False, primary_key=True, unique=True, autoincrement=True)
   netflix_username = db.Column(db.String(80), unique=True)
   netflix_password = db.Column(db.String(80))
 
@@ -26,7 +26,7 @@ class User(db.Model):
 
 class ChillRequest(db.Model):
   __tablename__ = 'chill_requests'
-  #id = db.Column(db.Integer(), nullable=False, primary_key=True, unique=True, autoincrement=True)
+  id = db.Column(db.Integer(), nullable=False, primary_key=True, unique=True, autoincrement=True)
   #id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
   genre = db.Column(db.String(20))
@@ -87,8 +87,16 @@ def get_viewing_activity(user_id):
 def index():
   return 'Netflix and Chill API'
 
-@app.route('/sign-in', methods=['POST'])
+#app.route('/sign-in, methods=['POST'])
+@app.route('/sign-in', methods=['GET'])
 def sign_in():
+  """
+  REALLY BAD HACKY IMPLEMENTATION TO LET DYLAN TEST HIS API
+  """
+  return 137
+  """
+  END BAD IMPLEMENTATION
+  """
   print request.data
   request_data = json.loads(request.data)
   print request_data
